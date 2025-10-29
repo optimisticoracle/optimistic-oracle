@@ -31,7 +31,6 @@ function App() {
               <a href="#comparison">Comparison</a>
               <a href="#technical">Technical</a>
               <a href="#use-cases">Use Cases</a>
-              <a href={DASHBOARD_URL} className="btn-nav">Dashboard</a>
             </div>
           </div>
         </div>
@@ -96,7 +95,7 @@ function App() {
                 <div
                   className="token-placeholder"
                   onClick={() => {
-                    const fullAddress = 'TOKEN_ADDRESS_HERE'; // TODO: ganti dengan token address asli
+                    const fullAddress = 'Soon'; // TODO: ganti dengan token address asli
                     navigator.clipboard.writeText(fullAddress);
 
                     // trigger tooltip
@@ -121,7 +120,7 @@ function App() {
                   </svg>
 
                   {/* short display only */}
-                  <code className="token-address">So1a...q8rX</code>
+                  <code className="token-address">Soon...</code>
 
                   {/* tooltip muncul hanya ketika copied = true */}
                   {copied && (

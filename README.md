@@ -10,6 +10,7 @@ An optimistic oracle protocol built on Solana that enables decentralized data fe
 🌐 **Live:** [optimisticoracle.com](https://optimisticoracle.com)  
 📊 **Dashboard:** [Work in Progress]  
 📖 **Docs:** [optimisticoracle.com/docs](https://www.optimisticoracle.com/docs)
+🔗 **$OPTIM:** [86BMwo29TgobuYTCFU7tf3DBhgNvgeCkNTQXbAvUpump](https://solscan.io/token/86BMwo29TgobuYTCFU7tf3DBhgNvgeCkNTQXbAvUpump)
 
 ---
 
@@ -301,6 +302,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation:** [optimisticoracle.com/docs](https://optimisticoracle.com/docs)
 - **GitHub:** [github.com/optimisticoracle/optimistic-oracle](https://github.com/optimisticoracle/optimistic-oracle)
 - **Twitter:** [@OptimOracle](https://twitter.com/OptimOracle)
+- **Solscan:** [$OPTIM](https://solscan.io/token/86BMwo29TgobuYTCFU7tf3DBhgNvgeCkNTQXbAvUpump)
 
 ---
 

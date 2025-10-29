@@ -98,7 +98,7 @@ optimistic_oracle/
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/optimistic-oracle.git
+git clone https://github.com/optimisticoracle/optimistic-oracle.git
 cd optimistic-oracle
 
 # Install dependencies
@@ -299,7 +299,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Website:** [optimisticoracle.com](https://optimisticoracle.com)
 - **Dashboard:** [dashboard.optimisticoracle.com](https://dashboard.optimisticoracle.com)
 - **Documentation:** [docs.optimisticoracle.com](https://docs.optimisticoracle.com)
-- **GitHub:** [github.com/YOUR_USERNAME/optimistic-oracle](https://github.com/optimisticoracle/optimistic-oracle)
+- **GitHub:** [github.com/optimisticoracle/optimistic-oracle](https://github.com/optimisticoracle/optimistic-oracle)
 - **Twitter:** [@OptimOracle](https://twitter.com/OptimOracle)
 
 ---

@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "name": "optimistic-oracle",
+  "builds": [
+    {
+      "src": "packages/landing/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/docs/(.*)",
+      "dest": "/docs/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|svg|ico|json))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_DASHBOARD_URL": "https://dashboard.optimisticoracle.com",
+    "VITE_DOCS_URL": "https://docs.optimisticoracle.com",
+    "VITE_GITHUB_URL": "https://github.com/optimisticoracle/optimistic-oracle",
+    "VITE_API_URL": "https://api.optimisticoracle.com"
+  }
+}

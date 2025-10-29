@@ -1,0 +1,418 @@
+{
+  "address": "4qdXVoVkqjHWXKTMii1kk98e8mCw3Ps7ctsgGNMgdkFU",
+  "metadata": {
+    "name": "optimistic_oracle",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "challenge_proposal",
+      "discriminator": [
+        48,
+        38,
+        50,
+        114,
+        92,
+        205,
+        220,
+        75
+      ],
+      "accounts": [
+        {
+          "name": "request",
+          "writable": true
+        },
+        {
+          "name": "challenger",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_request",
+      "discriminator": [
+        131,
+        203,
+        135,
+        195,
+        17,
+        37,
+        174,
+        184
+      ],
+      "accounts": [
+        {
+          "name": "request",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  113,
+                  117,
+                  101,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "request_count"
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "requester",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "request_count",
+          "type": "u64"
+        },
+        {
+          "name": "question",
+          "type": "bytes"
+        },
+        {
+          "name": "expiry_timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "reward_amount",
+          "type": "u64"
+        },
+        {
+          "name": "bond_amount",
+          "type": "u64"
+        },
+        {
+          "name": "challenge_period",
+          "type": "i64"
+        },
+        {
+          "name": "data_source",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "oracle_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "propose_answer",
+      "discriminator": [
+        90,
+        37,
+        200,
+        47,
+        196,
+        43,
+        106,
+        150
+      ],
+      "accounts": [
+        {
+          "name": "request",
+          "writable": true
+        },
+        {
+          "name": "proposer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "answer",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "resolve_dispute",
+      "discriminator": [
+        22,
+        250,
+        228,
+        88,
+        221,
+        122,
+        64,
+        250
+      ],
+      "accounts": [
+        {
+          "name": "request",
+          "writable": true
+        },
+        {
+          "name": "resolver",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "is_valid",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "resolve_request",
+      "discriminator": [
+        177,
+        171,
+        1,
+        186,
+        181,
+        108,
+        188,
+        93
+      ],
+      "accounts": [
+        {
+          "name": "request",
+          "writable": true
+        },
+        {
+          "name": "requester",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "OracleState",
+      "discriminator": [
+        150,
+        98,
+        205,
+        207,
+        61,
+        229,
+        158,
+        52
+      ]
+    },
+    {
+      "name": "Request",
+      "discriminator": [
+        176,
+        222,
+        146,
+        246,
+        188,
+        16,
+        110,
+        158
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "OracleState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "request_count",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Request",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "request_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "question",
+            "type": "string"
+          },
+          {
+            "name": "answer",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "proposer",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "proposal_time",
+            "type": "i64"
+          },
+          {
+            "name": "expiry_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "challenge_period",
+            "type": "i64"
+          },
+          {
+            "name": "reward_amount",
+            "type": "u64"
+          },
+          {
+            "name": "bond_amount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "RequestStatus"
+              }
+            }
+          },
+          {
+            "name": "data_source",
+            "type": "string"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RequestStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Created"
+          },
+          {
+            "name": "Proposed"
+          },
+          {
+            "name": "Disputed"
+          },
+          {
+            "name": "Resolved"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    }
+  ]
+}

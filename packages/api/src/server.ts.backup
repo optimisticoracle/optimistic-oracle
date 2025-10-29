@@ -1,0 +1,230 @@
+import express from 'express';
+import cors from 'cors';
+import { createServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
+import { OptimisticOracleSDK } from '@optimistic-oracle/sdk';
+
+const app = express();
+const httpServer = createServer(app);
+const io = new SocketIOServer(httpServer, { 
+  cors: { origin: '*' } 
+});
+
+const PORT = process.env.PORT || 3000;
+let oracle: OptimisticOracleSDK;
+
+// Initialize Oracle
+try {
+  const walletPath = './api-wallet.json';
+  
+  oracle = new OptimisticOracleSDK('devnet', walletPath);
+  
+  console.log('Oracle initialized with wallet:', oracle.getWalletAddress());
+} catch (error) {
+  console.error('Failed to initialize oracle:', error);
+  process.exit(1);
+}
+
+app.use(cors());
+app.use(express.json());
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    network: 'devnet',
+    wallet: oracle.getWalletAddress(),
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Get stats
+app.get('/api/stats', async (req, res) => {
+  try {
+    const stats = await oracle.getStats();
+    res.json({ success: true, data: stats });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// List requests
+app.get('/api/requests', async (req, res) => {
+  try {
+    const { active } = req.query;
+    const requests = active === 'true' 
+      ? await oracle.listActiveRequests()
+      : await oracle.listRequests();
+    
+    res.json({ 
+      success: true, 
+      count: requests.length, 
+      data: requests 
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get single request
+app.get('/api/requests/:id', async (req, res) => {
+  try {
+    const requestId = parseInt(req.params.id);
+    const request = await oracle.getRequest(requestId);
+    res.json({ success: true, data: request });
+  } catch (error: any) {
+    res.status(404).json({ success: false, error: 'Request not found' });
+  }
+});
+
+// Create request
+app.post('/api/requests', async (req, res) => {
+  try {
+    const { question, expiryMinutes, rewardSOL, bondSOL, challengeHours } = req.body;
+    
+    if (!question || !expiryMinutes || !rewardSOL) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: question, expiryMinutes, rewardSOL'
+      });
+    }
+    
+    const request = await oracle.createRequest({
+      question,
+      expiryMinutes,
+      rewardSOL,
+      bondSOL,
+      challengeHours
+    });
+    
+    io.emit('request:created', request);
+    res.status(201).json({ success: true, data: request });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Propose answer
+app.post('/api/requests/:id/propose', async (req, res) => {
+  try {
+    const requestId = parseInt(req.params.id);
+    const { answer } = req.body;
+    
+    if (!answer) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: answer'
+      });
+    }
+    
+    await oracle.proposeAnswer(requestId, answer);
+    const request = await oracle.getRequest(requestId);
+    
+    io.emit('request:proposed', request);
+    res.json({ success: true, data: request });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Home page with documentation
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Optimistic Oracle API</title>
+      <style>
+        body { 
+          font-family: system-ui; 
+          max-width: 800px; 
+          margin: 40px auto; 
+          padding: 20px;
+          line-height: 1.6;
+        }
+        h1 { color: #2E86AB; }
+        .endpoint { 
+          background: #f4f4f4; 
+          padding: 10px; 
+          margin: 10px 0; 
+          border-left: 4px solid #2E86AB;
+        }
+        code { 
+          background: #eee; 
+          padding: 2px 6px; 
+          border-radius: 3px;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>📘 Optimistic Oracle REST API</h1>
+      <p>Welcome! API is running on devnet.</p>
+      
+      <h2>📍 Endpoints</h2>
+      
+      <div class="endpoint">
+        <strong>GET /api/health</strong><br>
+        Health check
+      </div>
+      
+      <div class="endpoint">
+        <strong>GET /api/stats</strong><br>
+        Get statistics
+      </div>
+      
+      <div class="endpoint">
+        <strong>GET /api/requests</strong><br>
+        List all requests<br>
+        Query: <code>?active=true</code>
+      </div>
+      
+      <div class="endpoint">
+        <strong>GET /api/requests/:id</strong><br>
+        Get request by ID
+      </div>
+      
+      <div class="endpoint">
+        <strong>POST /api/requests</strong><br>
+        Create new request<br>
+        Body: <code>{ question, expiryMinutes, rewardSOL }</code>
+      </div>
+      
+      <div class="endpoint">
+        <strong>POST /api/requests/:id/propose</strong><br>
+        Propose answer<br>
+        Body: <code>{ answer: "YES" }</code>
+      </div>
+      
+      <h2>🔗 Try It</h2>
+      <p>
+        <a href="/api/health">Health Check</a> | 
+        <a href="/api/stats">Stats</a> | 
+        <a href="/api/requests?active=true">Active Requests</a>
+      </p>
+    </body>
+    </html>
+  `);
+});
+
+// WebSocket connection
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+  
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
+
+// Start server
+httpServer.listen(PORT, () => {
+  console.log(`\n🚀 Optimistic Oracle REST API`);
+  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+  console.log(`📡 Server: http://localhost:${PORT}`);
+  console.log(`💼 Wallet: ${oracle.getWalletAddress()}`);
+  console.log(`🌐 Network: devnet`);
+  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+  console.log(`\n📊 Endpoints:`);
+  console.log(`   http://localhost:${PORT}/api/health`);
+  console.log(`   http://localhost:${PORT}/api/stats`);
+  console.log(`   http://localhost:${PORT}/api/requests\n`);
+});

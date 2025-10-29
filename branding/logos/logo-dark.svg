@@ -1,0 +1,13 @@
+<svg width="400" height="120" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g id="express-lanes">
+    <path d="M10 25 L70 25 L75 30 L70 35 L10 35 Z" fill="#5EEAD4" opacity="0.7"/>
+    <path d="M70 25 L85 30 L70 35 Z" fill="#5EEAD4" opacity="0.7"/>
+    <path d="M10 45 L75 45 L80 50 L75 55 L10 55 Z" fill="#22D3EE"/>
+    <path d="M75 45 L90 50 L75 55 Z" fill="#22D3EE"/>
+    <path d="M10 65 L80 65 L85 70 L80 75 L10 75 Z" fill="#38BDF8" opacity="0.7"/>
+    <path d="M80 65 L95 70 L80 75 Z" fill="#38BDF8" opacity="0.7"/>
+  </g>
+  <text x="110" y="55" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#F1F5F9" letter-spacing="2">OPTIMISTIC</text>
+  <text x="110" y="85" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#5EEAD4" letter-spacing="2">ORACLE</text>
+  <text x="110" y="105" font-family="Arial, sans-serif" font-size="12" fill="#94A3B8" letter-spacing="1">THE 100X ORACLE</text>
+</svg>

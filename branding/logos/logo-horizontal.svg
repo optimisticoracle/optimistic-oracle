@@ -1,0 +1,13 @@
+<svg width="500" height="80" viewBox="0 0 500 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g id="icon">
+    <path d="M10 20 L50 20 L55 25 L50 30 L10 30 Z" fill="#14B8A6" opacity="0.7"/>
+    <path d="M50 20 L65 25 L50 30 Z" fill="#14B8A6" opacity="0.7"/>
+    <path d="M10 35 L53 35 L58 40 L53 45 L10 45 Z" fill="#06B6D4"/>
+    <path d="M53 35 L68 40 L53 45 Z" fill="#06B6D4"/>
+    <path d="M10 50 L55 50 L60 55 L55 60 L10 60 Z" fill="#0EA5E9" opacity="0.7"/>
+    <path d="M55 50 L70 55 L55 60 Z" fill="#0EA5E9" opacity="0.7"/>
+  </g>
+  <text x="90" y="50" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#0F172A" letter-spacing="2">OPTIMISTIC ORACLE</text>
+  <line x1="90" y1="58" x2="380" y2="58" stroke="#14B8A6" stroke-width="2"/>
+  <text x="90" y="72" font-family="Arial, sans-serif" font-size="11" fill="#64748B" letter-spacing="1">The 100x Oracle</text>
+</svg>

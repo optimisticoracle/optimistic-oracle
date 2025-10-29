@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Optimistic Oracle Documentation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #14B8A6;
+      --secondary: #0EA5E9;
+      --dark: #0F172A;
+      --gray: #1E293B;
+      --light-gray: #334155;
+      --text: #E2E8F0;
+      --text-dim: #94A3B8;
+      --border: #2D3748;
+      --accent: #5EEAD4;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Arial, sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--gray);
+      border-right: 1px solid var(--border);
+      padding: 20px;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 35px 10px 12px;
+      background: var(--light-gray);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+    }
+
+    .search-box kbd {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--dark);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      margin-left: 4px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .nav-section {
+      margin-bottom: 25px;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      font-weight: 600;
+      margin-bottom: 10px;
+      padding-left: 12px;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 10px 12px;
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.2s;
+      margin-bottom: 2px;
+      cursor: pointer;
+    }
+
+    .nav-link:hover {
+      background: var(--light-gray);
+      color: var(--accent);
+      transform: translateX(3px);
+    }
+
+    .nav-link.active {
+      background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(14, 165, 233, 0.15));
+      color: var(--accent);
+      border-left: 3px solid var(--primary);
+      padding-left: 9px;
+      font-weight: 600;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      padding: 40px 60px;
+      max-width: 1200px;
+    }
+
+    .breadcrumb {
+      color: var(--text-dim);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .breadcrumb a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-top: 50px;
+      margin-bottom: 20px;
+      color: var(--text);
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h3 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-top: 35px;
+      margin-bottom: 15px;
+      color: var(--accent);
+    }
+
+    h4 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 25px;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    p {
+      margin-bottom: 18px;
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .lead {
+      font-size: 20px;
+      color: var(--text-dim);
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(14, 165, 233, 0.1));
+      border-left: 4px solid var(--primary);
+      padding: 20px 25px;
+      border-radius: 8px;
+      margin: 25px 0;
+    }
+
+    .highlight-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    .warning-box {
+      background: rgba(251, 191, 36, 0.1);
+      border-left: 4px solid #FBBF24;
+      padding: 20px 25px;
+      border-radius: 8px;
+      margin: 25px 0;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .feature-card {
+      background: var(--gray);
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(20, 184, 166, 0.2);
+    }
+
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 15px;
+    }
+
+    .feature-card h4 {
+      margin-top: 0;
+      color: var(--primary);
+    }
+
+    code {
+      background: var(--gray);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    pre {
+      background: var(--gray);
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border: 1px solid var(--border);
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      border: none;
+      color: var(--accent);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    ul, ol {
+      margin: 20px 0;
+      padding-left: 30px;
+    }
+
+    li {
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .comparison-table {
+      width: 100%;
+      margin: 30px 0;
+      border-collapse: collapse;
+      background: var(--gray);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .comparison-table th {
+      background: var(--light-gray);
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--accent);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .comparison-table td {
+      padding: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table tr:hover {
+      background: rgba(20, 184, 166, 0.05);
+    }
+
+    .check {
+      color: #10B981;
+      font-weight: bold;
+    }
+
+    .cross {
+      color: #EF4444;
+      font-weight: bold;
+    }
+
+    .token-address {
+      background: var(--gray);
+      padding: 15px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: var(--accent);
+      margin: 15px 0;
+      word-break: break-all;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .copy-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: var(--secondary);
+      transform: scale(1.05);
+    }
+
+    .timestamp {
+      color: var(--text-dim);
+      font-size: 14px;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Section visibility */
+    .doc-section {
+      display: none;
+    }
+
+    .doc-section.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Navigation buttons */
+    .section-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    .nav-btn {
+      flex: 1;
+      padding: 20px 25px;
+      background: var(--gray);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .nav-btn-content {
+      flex: 1;
+    }
+
+    .nav-btn-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .nav-btn-title {
+      font-size: 18px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .nav-btn-arrow {
+      font-size: 24px;
+      color: var(--primary);
+    }
+
+    /* Social Links */
+    .social-links {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.2s;
+      margin-bottom: 5px;
+    }
+
+    .social-link:hover {
+      background: var(--light-gray);
+      color: var(--accent);
+      transform: translateX(3px);
+    }
+
+    .social-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .token-address {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .section-nav {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">O</div>
+        <div class="logo-text">Optimistic Oracle</div>
+      </div>
+
+      <div class="search-box">
+        <input type="text" placeholder="Search...">
+        <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px;">
+          <kbd>Ctrl</kbd>
+          <kbd>K</kbd>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Introduction</div>
+        <a href="javascript:void(0)" onclick="navigateToSection('introduction')" class="nav-link active">Introduction</a>
+        <a href="javascript:void(0)" onclick="navigateToSection('why-optimistic')" class="nav-link">Why Optimistic Oracle</a>
+        <a href="javascript:void(0)" onclick="navigateToSection('vision')" class="nav-link">Vision</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Technical</div>
+        <a href="javascript:void(0)" onclick="navigateToSection('architecture')" class="nav-link">Architecture</a>
+        <a href="javascript:void(0)" onclick="navigateToSection('how-it-works')" class="nav-link">How It Works</a>
+        <a href="javascript:void(0)" onclick="navigateToSection('security')" class="nav-link">Security & Transparency</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Use Cases</div>
+        <a href="javascript:void(0)" onclick="navigateToSection('use-cases')" class="nav-link">Oracle Applications</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Tokenomics</div>
+        <a href="javascript:void(0)" onclick="navigateToSection('optim-token')" class="nav-link">OPTIM Token</a>
+        <a href="javascript:void(0)" onclick="navigateToSection('staking')" class="nav-link">Staking Mechanism</a>
+        <a href="javascript:void(0)" onclick="navigateToSection('token-contract')" class="nav-link">Token Contract</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Comparison</div>
+        <a href="javascript:void(0)" onclick="navigateToSection('uma-comparison')" class="nav-link">vs UMA Protocol</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Developer</div>
+        <a href="javascript:void(0)" onclick="navigateToSection('getting-started')" class="nav-link">Getting Started</a>
+        <a href="javascript:void(0)" onclick="navigateToSection('api-reference')" class="nav-link">API Reference</a>
+        <a href="javascript:void(0)" onclick="navigateToSection('smart-contracts')" class="nav-link">Smart Contracts</a>
+      </div>
+
+      <div class="social-links">
+        <a href="https://x.com/your-handle" target="_blank" rel="noopener noreferrer" class="social-link">
+          <div class="social-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </div>
+          <span>Follow us on X</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="/">Home</a> / Documentation
+      </div>
+
+      <!-- SECTION: INTRODUCTION -->
+      <div class="doc-section active" id="section-introduction">
+        <h1 id="introduction">Introduction</h1>
+        <p class="lead">
+          Optimistic Oracle is a next-generation decentralized oracle protocol built on Solana, designed to provide fast, secure, and cost-effective data verification for blockchain applications.
+        </p>
+
+        <p>
+          The protocol implements an <strong>optimistic verification model</strong> where data is assumed to be true unless challenged, significantly reducing costs and latency compared to traditional oracle solutions. This "assume true until proven false" philosophy, combined with economic incentives and a robust dispute resolution mechanism, creates a highly efficient system for bringing real-world data on-chain.
+        </p>
+
+        <div class="highlight-box">
+          <p><strong>Core Principle:</strong> Optimistic Oracle operates on the assumption that most data submissions are honest. By leveraging economic incentives and allowing challenges to false data, we achieve both high security and exceptional efficiency.</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <div style="flex: 1;"></div>
+          <a class="nav-btn next" onclick="navigateToSection('why-optimistic')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">Why Optimistic Oracle?</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: WHY OPTIMISTIC -->
+      <div class="doc-section" id="section-why-optimistic">
+        <h2 id="why-optimistic">Why Optimistic Oracle?</h2>
+
+        <p>
+          Traditional oracle solutions face three fundamental challenges: the <strong>Oracle Trilemma</strong> of security, speed, and cost. Most protocols force you to choose two out of three. Optimistic Oracle breaks this paradigm.
+        </p>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+            <h4>Lightning Fast</h4>
+            <p>Sub-second finality on Solana enables real-time data verification. No waiting for consensus from multiple validators.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+            <h4>Cost Effective</h4>
+            <p>Solana's low transaction costs (fraction of a cent) make oracle queries economically viable at any scale.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+            <h4>Cryptographically Secure</h4>
+            <p>Economic incentives backed by bonding mechanisms ensure data integrity. Challenge periods provide additional security.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+          </div>
+            <h4>Multi-Purpose Oracle</h4>
+            <p>Not limited to prediction markets. Supports DeFi pricing, event verification, IoT data, and any real-world data needs.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </div>
+            <h4>Dispute Resolution</h4>
+            <p>Transparent and fair challenge mechanism with economic penalties for malicious actors.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+          </div>
+            <h4>Scalable Architecture</h4>
+            <p>Built for Web3 scale. Handle millions of requests without compromising performance.</p>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('introduction')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">Introduction</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('vision')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">Vision</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: VISION -->
+      <div class="doc-section" id="section-vision">
+        <h2 id="vision">Vision</h2>
+
+        <p>
+          Our vision is to become the <strong>de facto standard for decentralized data verification</strong> across the Solana ecosystem and beyond. We're building infrastructure that makes bringing real-world data on-chain as simple and reliable as reading from a smart contract.
+        </p>
+
+        <p>
+          The future of DeFi, prediction markets, insurance, supply chain, and countless other blockchain applications depends on reliable oracles. Optimistic Oracle aims to be the bridge that connects the digital and physical worlds with unprecedented efficiency and security.
+        </p>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('why-optimistic')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">Why Optimistic Oracle?</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('architecture')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">Technical Architecture</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: ARCHITECTURE -->
+      <div class="doc-section" id="section-architecture">
+        <h2 id="architecture">Technical Architecture</h2>
+
+        <p>
+          Optimistic Oracle is architected as a <strong>modular protocol</strong> with three core layers:
+        </p>
+
+        <h3>1. Data Request Layer</h3>
+        <p>
+          Smart contracts create data requests with parameters including:
+        </p>
+        <ul>
+          <li><strong>Question/Query:</strong> The data being requested</li>
+          <li><strong>Reward Amount:</strong> Payment for correct data provision</li>
+          <li><strong>Bond Amount:</strong> Collateral required from data providers</li>
+          <li><strong>Challenge Period:</strong> Time window for disputes</li>
+          <li><strong>Expiry Timestamp:</strong> Deadline for data submission</li>
+        </ul>
+
+        <h3>2. Proposal & Verification Layer</h3>
+        <p>
+          Data providers (proposers) submit answers by:
+        </p>
+        <ol>
+          <li>Staking the required bond amount in SOL</li>
+          <li>Submitting their answer/data</li>
+          <li>Entering the challenge period where anyone can dispute</li>
+        </ol>
+
+        <p>
+          The economic model ensures honesty:
+        </p>
+        <pre><code>Cost of lying > Potential gain
+Bond at risk + Reputation loss > Reward amount</code></pre>
+
+        <h3>3. Dispute Resolution Layer</h3>
+        <p>
+          If a proposal is challenged:
+        </p>
+        <ul>
+          <li>Challenger stakes a bond equal to the proposer's bond</li>
+          <li>Dispute is escalated to resolution mechanism</li>
+          <li>Correct party receives both bonds plus rewards</li>
+          <li>Incorrect party loses their bond</li>
+        </ul>
+
+        <div class="highlight-box">
+          <p><strong>Security Model:</strong> The protocol's security is mathematically guaranteed by making the cost of attack exceed the potential benefit. Bond mechanisms ensure skin in the game.</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('vision')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">Vision</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('how-it-works')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">How It Works</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: HOW IT WORKS -->
+      <div class="doc-section" id="section-how-it-works">
+        <h2 id="how-it-works">How It Works</h2>
+
+        <h3>The Optimistic Oracle Workflow</h3>
+
+        <h4>Step 1: Request Creation</h4>
+        <pre><code>// Example: Create a price oracle request
+const request = await oracle.createRequest({
+  question: "What is the ETH/USD price at 12:00 UTC?",
+  rewardAmount: 0.1 SOL,
+  bondAmount: 0.05 SOL,
+  challengePeriod: 1 hour,
+  expiryTime: 12:00 UTC + 5 minutes
+});</code></pre>
+
+        <h4>Step 2: Answer Proposal</h4>
+        <pre><code>// Proposer submits answer with bond
+await oracle.proposeAnswer({
+  requestId: request.id,
+  answer: "$2,450.32",
+  bond: 0.05 SOL
+});
+// Answer enters challenge period</code></pre>
+
+        <h4>Step 3: Challenge or Accept</h4>
+        <p>During the challenge period:</p>
+        <ul>
+          <li><strong>If no challenge:</strong> Answer is accepted as truth after challenge period</li>
+          <li><strong>If challenged:</strong> Dispute resolution begins</li>
+        </ul>
+
+        <h4>Step 4: Resolution</h4>
+        <pre><code>// After challenge period expires
+const finalAnswer = await oracle.resolveRequest(requestId);
+// Proposer receives reward + bond back
+// Data is now available on-chain</code></pre>
+
+        <h3>Economic Incentives</h3>
+
+        <table class="comparison-table">
+          <tr>
+            <th>Actor</th>
+            <th>Incentive</th>
+            <th>Risk</th>
+          </tr>
+          <tr>
+            <td><strong>Honest Proposer</strong></td>
+            <td>Reward + Bond returned</td>
+            <td>Time-locked capital</td>
+          </tr>
+          <tr>
+            <td><strong>Dishonest Proposer</strong></td>
+            <td>Temporary reward claim</td>
+            <td>Bond slashed + Reputation loss</td>
+          </tr>
+          <tr>
+            <td><strong>Challenger</strong></td>
+            <td>Winning reward + Slashed bond</td>
+            <td>Bond at risk if wrong</td>
+          </tr>
+          <tr>
+            <td><strong>Requester</strong></td>
+            <td>Accurate data</td>
+            <td>Reward payment</td>
+          </tr>
+        </table>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('architecture')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">Technical Architecture</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('security')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">Security & Transparency</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: SECURITY -->
+      <div class="doc-section" id="section-security">
+        <h2 id="security">Security & Transparency</h2>
+
+        <p>
+          Optimistic Oracle implements multiple layers of security:
+        </p>
+
+        <h3>1. Economic Security</h3>
+        <ul>
+          <li><strong>Bond Mechanism:</strong> Proposers risk losing bonded capital</li>
+          <li><strong>Challenge Stakes:</strong> Challengers also risk capital, preventing frivolous disputes</li>
+          <li><strong>Graduated Penalties:</strong> Repeat offenders face increased bond requirements</li>
+        </ul>
+
+        <h3>2. Cryptographic Security</h3>
+        <ul>
+          <li><strong>Solana's Proof of History:</strong> Immutable timestamp verification</li>
+          <li><strong>Program Derived Addresses (PDAs):</strong> Deterministic account generation</li>
+          <li><strong>CPI Security:</strong> Cross-program invocation guards against reentrancy</li>
+        </ul>
+
+        <h3>3. Transparency</h3>
+        <ul>
+          <li>All proposals are publicly visible on-chain</li>
+          <li>Complete audit trail of all decisions</li>
+          <li>Open-source smart contracts</li>
+          <li>Real-time monitoring dashboards</li>
+        </ul>
+
+        <div class="warning-box">
+          <p><strong>⚠️ Important:</strong> While our optimistic model provides strong economic guarantees, no oracle system is 100% immune to attack. Always consider multiple data sources for high-value decisions.</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('how-it-works')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">How It Works</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('use-cases')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">Oracle Applications</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: USE CASES -->
+      <div class="doc-section" id="section-use-cases">
+        <h2 id="use-cases">Oracle Applications</h2>
+
+        <p>
+          Optimistic Oracle is a <strong>general-purpose oracle protocol</strong> supporting diverse use cases:
+        </p>
+
+        <h3 id="prediction-markets">1. Prediction Markets</h3>
+        <ul>
+          <li>Sports betting outcomes</li>
+          <li>Political election results</li>
+          <li>Economic indicator predictions</li>
+          <li>Cryptocurrency price movements</li>
+        </ul>
+
+        <h3 id="defi-integration">2. DeFi Price Feeds</h3>
+        <ul>
+          <li>Real-time asset pricing for lending protocols</li>
+          <li>DEX price oracles</li>
+          <li>Liquidation trigger mechanisms</li>
+          <li>Yield farming APY calculations</li>
+        </ul>
+
+        <h3>3. Insurance & Parametric Contracts</h3>
+        <ul>
+          <li>Weather data for crop insurance</li>
+          <li>Flight delay verification</li>
+          <li>Natural disaster triggers</li>
+          <li>Smart contract exploit detection</li>
+        </ul>
+
+        <h3>4. Supply Chain & IoT</h3>
+        <ul>
+          <li>Product authenticity verification</li>
+          <li>Shipment tracking and delivery confirmation</li>
+          <li>Temperature/humidity monitoring for perishables</li>
+          <li>Quality assurance data</li>
+        </ul>
+
+        <h3>5. Gaming & NFTs</h3>
+        <ul>
+          <li>Verifiable random number generation</li>
+          <li>Tournament results verification</li>
+          <li>Real-world event triggers for in-game assets</li>
+          <li>Cross-chain NFT metadata</li>
+        </ul>
+
+        <h3>6. Governance & DAOs</h3>
+        <ul>
+          <li>Vote outcome verification</li>
+          <li>Proposal execution triggers</li>
+          <li>Treasury management data</li>
+          <li>Milestone completion verification</li>
+        </ul>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('security')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">Security & Transparency</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('optim-token')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">OPTIM Token</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: OPTIM TOKEN -->
+      <div class="doc-section" id="section-optim-token">
+        <h2 id="optim-token">OPTIM Token</h2>
+
+        <p>
+          The <strong>OPTIM token</strong> is the native utility token of the Optimistic Oracle ecosystem, serving critical functions for protocol operation, security, and governance.
+        </p>
+
+        <h3 id="token-utility">Token Utility</h3>
+
+        <h4>1. Staking for Dispute Resolution</h4>
+        <p>
+          OPTIM token holders can stake their tokens to become <strong>Dispute Resolvers</strong>:
+        </p>
+        <ul>
+          <li>Resolvers vote on disputed proposals</li>
+          <li>Earn fees from dispute resolutions</li>
+          <li>Slashed if voting dishonestly (measured against consensus)</li>
+          <li>Higher stakes = more voting power and higher rewards</li>
+        </ul>
+
+        <h4>2. Protocol Governance</h4>
+        <p>
+          OPTIM holders govern protocol parameters:
+        </p>
+        <ul>
+          <li>Minimum bond requirements</li>
+          <li>Challenge period durations</li>
+          <li>Fee structures</li>
+          <li>Dispute resolution mechanisms</li>
+          <li>Treasury allocation</li>
+        </ul>
+
+        <h4>3. Fee Discounts</h4>
+        <p>
+          Staking OPTIM provides:
+        </p>
+        <ul>
+          <li>Reduced fees for creating oracle requests</li>
+          <li>Lower bond requirements for proposers</li>
+          <li>Priority processing for high-volume users</li>
+        </ul>
+
+        <h4>4. Revenue Sharing</h4>
+        <p>
+          Protocol revenue distribution:
+        </p>
+        <ul>
+          <li>50% to OPTIM stakers (proportional to stake)</li>
+          <li>30% to protocol treasury for development</li>
+          <li>20% to dispute resolvers and validators</li>
+        </ul>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('use-cases')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">Oracle Applications</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('staking')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">Staking Mechanism</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: STAKING -->
+      <div class="doc-section" id="section-staking">
+        <h2 id="staking">Staking Mechanism</h2>
+
+        <div class="highlight-box">
+          <p><strong>💎 Staking Benefits:</strong></p>
+          <ul style="margin-top: 10px; margin-bottom: 0;">
+            <li>Base APY: 8-12% (from protocol fees)</li>
+            <li>Dispute Resolution Rewards: Additional 5-15% APY</li>
+            <li>Governance Rights: Vote on protocol changes</li>
+            <li>Fee Discounts: Up to 50% reduction on oracle usage fees</li>
+          </ul>
+        </div>
+
+        <h3>Staking Tiers</h3>
+        <table class="comparison-table">
+          <tr>
+            <th>Tier</th>
+            <th>OPTIM Required</th>
+            <th>Benefits</th>
+          </tr>
+          <tr>
+            <td><strong>Bronze</strong></td>
+            <td>1,000 OPTIM</td>
+            <td>10% fee discount, Basic voting rights</td>
+          </tr>
+          <tr>
+            <td><strong>Silver</strong></td>
+            <td>10,000 OPTIM</td>
+            <td>25% fee discount, Enhanced voting, Dispute resolution</td>
+          </tr>
+          <tr>
+            <td><strong>Gold</strong></td>
+            <td>100,000 OPTIM</td>
+            <td>40% fee discount, Priority support, Advanced governance</td>
+          </tr>
+          <tr>
+            <td><strong>Platinum</strong></td>
+            <td>1,000,000 OPTIM</td>
+            <td>50% fee discount, Protocol council seat, Maximum rewards</td>
+          </tr>
+        </table>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('optim-token')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">OPTIM Token</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('token-contract')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">Token Contract</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: TOKEN CONTRACT -->
+      <div class="doc-section" id="section-token-contract">
+        <h2 id="token-contract">OPTIM Token Contract</h2>
+
+        <p>
+          The OPTIM token is an SPL Token deployed on Solana. Below is the official contract address:
+        </p>
+
+        <div class="highlight-box">
+          <p><strong>🔗 Mainnet Token Address:</strong></p>
+          <div class="token-address">
+            <span id="mainnet-address">OPTIM_MAINNET_TOKEN_ADDRESS_REPLACE_AFTER_DEPLOYMENT</span>
+            <button class="copy-btn" onclick="copyMainnetAddress()">Copy</button>
+          </div>
+        </div>
+
+        <p>
+          Verify this address on <a href="https://solscan.io" style="color: var(--primary); text-decoration: none;">Solscan</a> or <a href="https://explorer.solana.com" style="color: var(--primary); text-decoration: none;">Solana Explorer</a> to ensure authenticity.
+        </p>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('staking')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">Staking Mechanism</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('uma-comparison')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">vs UMA Protocol</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: UMA COMPARISON -->
+      <div class="doc-section" id="section-uma-comparison">
+        <h2 id="uma-comparison">Optimistic Oracle vs UMA Protocol</h2>
+
+        <p>
+          Optimistic Oracle is <strong>not a competitor to UMA Protocol</strong>, but rather an <strong>evolution and enhancement</strong> of the optimistic oracle model. While UMA pioneered the optimistic oracle concept on Ethereum, we're building on Solana to address limitations that have hindered mainstream adoption.
+        </p>
+
+        <h3>Respect for UMA's Innovation</h3>
+        <p>
+          UMA Protocol deserves recognition for:
+        </p>
+        <ul>
+          <li>Pioneering the optimistic oracle design</li>
+          <li>Proving the economic security model works</li>
+          <li>Building a robust dispute resolution system (DVM)</li>
+          <li>Creating standards for synthetic assets and prediction markets</li>
+        </ul>
+
+        <h3 id="competitive-advantages">Areas of Enhancement</h3>
+
+        <table class="comparison-table">
+          <tr>
+            <th>Aspect</th>
+            <th>UMA Protocol (Ethereum)</th>
+            <th>Optimistic Oracle (Solana)</th>
+          </tr>
+          <tr>
+            <td><strong>Transaction Speed</strong></td>
+            <td>~15 seconds per block</td>
+            <td><span class="check">✓</span> 400ms finality</td>
+          </tr>
+          <tr>
+            <td><strong>Transaction Cost</strong></td>
+            <td>$5-50 per request (gas fees)</td>
+            <td><span class="check">✓</span> $0.00025 per request</td>
+          </tr>
+          <tr>
+            <td><strong>Throughput</strong></td>
+            <td>~15 TPS (limited by Ethereum)</td>
+            <td><span class="check">✓</span> 65,000 TPS theoretical</td>
+          </tr>
+          <tr>
+            <td><strong>Challenge Period</strong></td>
+            <td>Typically 2-3 hours minimum</td>
+            <td><span class="check">✓</span> Configurable: 1 minute to hours</td>
+          </tr>
+          <tr>
+            <td><strong>Dispute Resolution</strong></td>
+            <td>DVM (Data Verification Mechanism)</td>
+            <td><span class="check">✓</span> Decentralized resolver network</td>
+          </tr>
+          <tr>
+            <td><strong>Token Integration</strong></td>
+            <td>UMA token for governance</td>
+            <td><span class="check">✓</span> OPTIM for governance + staking rewards</td>
+          </tr>
+          <tr>
+            <td><strong>Developer Experience</strong></td>
+            <td>Solidity, EVM tooling</td>
+            <td><span class="check">✓</span> Rust, Anchor framework</td>
+          </tr>
+          <tr>
+            <td><strong>Network Effects</strong></td>
+            <td>Strong Ethereum ecosystem</td>
+            <td><span class="check">✓</span> Growing Solana DeFi ecosystem</td>
+          </tr>
+        </table>
+
+        <h3>Key Differentiators</h3>
+
+        <h4>1. Cost Efficiency (200x cheaper)</h4>
+        <p>
+          On Ethereum, creating an oracle request costs $5-50 in gas fees. On Solana, it costs $0.00025. This <strong>200,000x cost reduction</strong> makes micro-transactions and high-frequency oracle queries economically viable.
+        </p>
+
+        <div class="highlight-box">
+          <p><strong>Real-World Impact:</strong> A DeFi protocol making 1,000 oracle queries per day would spend $15,000-50,000/day on Ethereum vs $0.25/day on Solana.</p>
+        </div>
+
+        <h4>2. Speed (37x faster)</h4>
+        <p>
+          Solana's 400ms block time enables near-instantaneous data verification. Critical for:
+        </p>
+        <ul>
+          <li>High-frequency trading applications</li>
+          <li>Real-time liquidation mechanisms</li>
+          <li>Live sports betting</li>
+          <li>Dynamic NFT metadata updates</li>
+        </ul>
+
+        <h4>3. Scalability</h4>
+        <p>
+          Ethereum's 15 TPS limit creates congestion during high usage. Solana's theoretical 65,000 TPS ensures the oracle protocol never becomes a bottleneck.
+        </p>
+
+        <h4>4. Flexible Challenge Periods</h4>
+        <p>
+          While UMA requires 2-3 hour challenge periods (due to Ethereum gas costs), Optimistic Oracle supports:
+        </p>
+        <ul>
+          <li><strong>Ultra-fast:</strong> 1-5 minutes for high-confidence data</li>
+          <li><strong>Standard:</strong> 30-60 minutes for normal use cases</li>
+          <li><strong>Secure:</strong> Multiple hours for high-value decisions</li>
+        </ul>
+
+        <h4>5. Native Staking Rewards</h4>
+        <p>
+          OPTIM token stakers earn yield from protocol usage, creating a sustainable economic model:
+        </p>
+        <pre><code>Staker APY = (Protocol Fee Revenue × 50%) / Total Staked OPTIM
++ Dispute Resolution Rewards
++ Governance Incentives</code></pre>
+
+        <h3>Complementary, Not Competitive</h3>
+
+        <p>
+          We view UMA and Optimistic Oracle as serving different ecosystems:
+        </p>
+        <ul>
+          <li><strong>UMA:</strong> Ethereum mainnet, established DeFi protocols, maximum security</li>
+          <li><strong>Optimistic Oracle:</strong> Solana ecosystem, high-throughput applications, cost-sensitive use cases</li>
+        </ul>
+
+        <p>
+          In the future, we envision <strong>cross-chain collaboration</strong> where both protocols can verify and validate each other's data, creating an even more robust oracle network.
+        </p>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('token-contract')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">Token Contract</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('getting-started')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">Getting Started</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: GETTING STARTED -->
+      <div class="doc-section" id="section-getting-started">
+        <h2 id="getting-started">Getting Started</h2>
+
+        <h3>For Developers</h3>
+
+        <h4>Installation</h4>
+        <pre><code># Install the SDK
+npm install @optimistic-oracle/sdk
+
+# Or using yarn
+yarn add @optimistic-oracle/sdk</code></pre>
+
+        <h4>Quick Start</h4>
+        <pre><code>import { OptimisticOracleSDK } from '@optimistic-oracle/sdk';
+
+// Initialize SDK
+const oracle = new OptimisticOracleSDK('devnet', walletPath);
+
+// Create a request
+const request = await oracle.createRequest(
+  "Will Bitcoin reach $100,000 by end of 2024?",
+  60, // expiry in minutes
+  0.1, // reward in SOL
+  0.05, // bond in SOL
+  1 // challenge period in hours
+);
+
+console.log('Request ID:', request.requestId);</code></pre>
+
+        <h3>Program Addresses</h3>
+        <div class="highlight-box">
+          <p><strong>Devnet Program ID:</strong></p>
+          <code>4qdXVoVkqjHWXKTMii1kk98e8mCw3Ps7ctsgGNMgdkFU</code>
+          <p style="margin-top: 15px;"><strong>Mainnet:</strong> Coming soon...</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('uma-comparison')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">vs UMA Protocol</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('api-reference')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">API Reference</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: API REFERENCE -->
+      <div class="doc-section" id="section-api-reference">
+        <h2 id="api-reference">API Reference</h2>
+
+        <h3>Core Methods</h3>
+
+        <h4>createRequest()</h4>
+        <pre><code>oracle.createRequest(
+  question: string,
+  expiryMinutes: number,
+  rewardSOL: number,
+  bondSOL: number,
+  challengeHours: number,
+  dataSource?: string
+): Promise&lt;{requestId: number, signature: string}&gt;</code></pre>
+
+        <h4>proposeAnswer()</h4>
+        <pre><code>oracle.proposeAnswer(
+  requestId: number,
+  answer: string
+): Promise&lt;{signature: string, proposer: string}&gt;</code></pre>
+
+        <h4>challengeProposal()</h4>
+        <pre><code>oracle.challengeProposal(
+  requestId: number
+): Promise&lt;{signature: string}&gt;</code></pre>
+
+        <h4>resolveRequest()</h4>
+        <pre><code>oracle.resolveRequest(
+  requestId: number
+): Promise&lt;{signature: string}&gt;</code></pre>
+
+        <h4>getRequest()</h4>
+        <pre><code>oracle.getRequest(
+  requestId: number
+): Promise&lt;RequestData | null&gt;</code></pre>
+
+        <h3>Request Status Types</h3>
+        <ul>
+          <li><code>Created</code> - Request created, awaiting proposals</li>
+          <li><code>Proposed</code> - Answer proposed, in challenge period</li>
+          <li><code>Disputed</code> - Proposal challenged, in resolution</li>
+          <li><code>Resolved</code> - Final answer determined</li>
+          <li><code>Cancelled</code> - Request cancelled by requester</li>
+        </ul>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('getting-started')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">Getting Started</div>
+            </div>
+          </a>
+          <a class="nav-btn next" onclick="navigateToSection('smart-contracts')">
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Next</div>
+              <div class="nav-btn-title">Smart Contracts</div>
+            </div>
+            <div class="nav-btn-arrow">→</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION: SMART CONTRACTS -->
+      <div class="doc-section" id="section-smart-contracts">
+        <h2 id="smart-contracts">Smart Contracts</h2>
+
+        <h3>Core Program Structure</h3>
+
+        <p>
+          The Optimistic Oracle program is built with Anchor framework on Solana:
+        </p>
+
+        <h4>Main Instructions</h4>
+        <ul>
+          <li><code>initialize</code> - Initialize the oracle state</li>
+          <li><code>create_request</code> - Create a new data request</li>
+          <li><code>propose_answer</code> - Submit an answer to a request</li>
+          <li><code>challenge_proposal</code> - Challenge a proposed answer</li>
+          <li><code>resolve_dispute</code> - Resolve a disputed answer</li>
+          <li><code>resolve_request</code> - Finalize a request after challenge period</li>
+        </ul>
+
+        <h4>Account Structures</h4>
+
+        <h5>OracleState</h5>
+        <pre><code>pub struct OracleState {
+    pub request_count: u64,
+}</code></pre>
+
+        <h5>Request</h5>
+        <pre><code>pub struct Request {
+    pub request_id: u64,
+    pub creator: Pubkey,
+    pub question: String,
+    pub answer: Option&lt;String&gt;,
+    pub proposer: Option&lt;Pubkey&gt;,
+    pub proposal_time: i64,
+    pub expiry_timestamp: i64,
+    pub challenge_period: i64,
+    pub reward_amount: u64,
+    pub bond_amount: u64,
+    pub status: RequestStatus,
+    pub data_source: String,
+    pub created_at: i64,
+}</code></pre>
+
+        <h3>GitHub Repository</h3>
+        <div class="highlight-box">
+          <p><strong>Open Source:</strong> Full source code available on GitHub</p>
+          <p style="margin-top: 10px;">
+            <a href="#" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+              github.com/optimistic-oracle/solana-contracts →
+            </a>
+          </p>
+        </div>
+
+        <div class="timestamp">
+          Last updated: October 28, 2025
+        </div>
+
+        <!-- Navigation -->
+        <div class="section-nav">
+          <a class="nav-btn prev" onclick="navigateToSection('api-reference')">
+            <div class="nav-btn-arrow">←</div>
+            <div class="nav-btn-content">
+              <div class="nav-btn-label">Previous</div>
+              <div class="nav-btn-title">API Reference</div>
+            </div>
+          </a>
+          <div style="flex: 1;"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Copy token address
+    function copyMainnetAddress() {
+      const address = document.getElementById('mainnet-address').textContent;
+      navigator.clipboard.writeText(address);
+      
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.background = '#10B981';
+      
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = '';
+      }, 2000);
+    }
+
+    // Section navigation
+    function navigateToSection(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.doc-section').forEach(section => {
+        section.classList.remove('active');
+      });
+
+      // Show target section
+      const targetSection = document.getElementById('section-' + sectionId);
+      if (targetSection) {
+        targetSection.classList.add('active');
+        
+        // Update active nav link in sidebar
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+        });
+        
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+          if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(sectionId)) {
+            link.classList.add('active');
+          }
+        });
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    // Search functionality
+    const searchInput = document.querySelector('.search-box input');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const navSections = document.querySelectorAll('.nav-section');
+
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      
+      navSections.forEach(section => {
+        let hasVisibleLinks = false;
+        const links = section.querySelectorAll('.nav-link');
+        
+        links.forEach(link => {
+          const text = link.textContent.toLowerCase();
+          if (text.includes(searchTerm)) {
+            link.style.display = 'block';
+            hasVisibleLinks = true;
+            
+            if (searchTerm) {
+              const regex = new RegExp(`(${searchTerm})`, 'gi');
+              const originalText = link.textContent;
+              link.innerHTML = originalText.replace(regex, '<span style="background: rgba(20, 184, 166, 0.3); padding: 2px 4px; border-radius: 3px;">$1</span>');
+            } else {
+              link.textContent = link.textContent;
+            }
+          } else {
+            link.style.display = 'none';
+          }
+        });
+        
+        const sectionTitle = section.querySelector('.nav-section-title');
+        if (sectionTitle) {
+          sectionTitle.style.display = hasVisibleLinks ? 'block' : 'none';
+        }
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+      
+      if (e.key === 'Escape' && document.activeElement === searchInput) {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        searchInput.blur();
+      }
+    });
+  </script>
+</body>
+</html>

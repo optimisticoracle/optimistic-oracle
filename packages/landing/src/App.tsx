@@ -95,7 +95,7 @@ function App() {
                 <div
                   className="token-placeholder"
                   onClick={() => {
-                    const fullAddress = 'Soon'; // TODO: ganti dengan token address asli
+                    const fullAddress = '86BMwo29TgobuYTCFU7tf3DBhgNvgeCkNTQXbAvUpump'; // TODO: ganti dengan token address asli
                     navigator.clipboard.writeText(fullAddress);
 
                     // trigger tooltip
@@ -120,7 +120,7 @@ function App() {
                   </svg>
 
                   {/* short display only */}
-                  <code className="token-address">Soon...</code>
+                  <code className="token-address">86BMwo..pump</code>
 
                   {/* tooltip muncul hanya ketika copied = true */}
                   {copied && (

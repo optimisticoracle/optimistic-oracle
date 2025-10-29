@@ -8,8 +8,8 @@ An optimistic oracle protocol built on Solana that enables decentralized data fe
 [![Solana](https://img.shields.io/badge/Solana-Devnet-blueviolet)](https://solana.com)
 
 🌐 **Live:** [optimisticoracle.com](https://optimisticoracle.com)  
-📊 **Dashboard:** [dashboard.optimisticoracle.com](https://dashboard.optimisticoracle.com)  
-📖 **Docs:** [docs.optimisticoracle.com](https://docs.optimisticoracle.com)
+📊 **Dashboard:** [Work in Progress]  
+📖 **Docs:** [optimisticoracle.com/docs](https://www.optimisticoracle.com/docs)
 
 ---
 
@@ -297,8 +297,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔗 Links
 
 - **Website:** [optimisticoracle.com](https://optimisticoracle.com)
-- **Dashboard:** [dashboard.optimisticoracle.com](https://dashboard.optimisticoracle.com)
-- **Documentation:** [docs.optimisticoracle.com](https://docs.optimisticoracle.com)
+- **Dashboard:** [Work in Progress]
+- **Documentation:** [optimisticoracle.com/docs](https://optimisticoracle.com/docs)
 - **GitHub:** [github.com/optimisticoracle/optimistic-oracle](https://github.com/optimisticoracle/optimistic-oracle)
 - **Twitter:** [@OptimOracle](https://twitter.com/OptimOracle)
 
@@ -316,7 +316,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For questions or support, please:
 - Open an issue on GitHub
-- Join our [Discord](https://discord.gg/optimistic-oracle)
+- Join our [Discord]
 - Follow us on [Twitter](https://twitter.com/OptimOracle)
 
 ---

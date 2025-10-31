@@ -8,7 +8,7 @@ const GITHUB_URL = import.meta.env.VITE_GITHUB_URL || 'https://github.com/optimi
 
 function App() {
   const [scrollY, setScrollY] = useState(0);
-  const [copied, setCopied] = useState(false); // <-- state untuk tooltip
+  const [copied, setCopied] = useState(false); 
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -88,14 +88,14 @@ function App() {
             <div className="hero-trust">
               <span className="trust-text">Trusted by developers building on Solana</span>
 
-              {/* kotak address yang berdiri sendiri */}
+              {/* adress box */}
               <div className="token-box">
                 <p className="token-label">$OPTIM</p>
 
                 <div
                   className="token-placeholder"
                   onClick={() => {
-                    const fullAddress = '86BMwo29TgobuYTCFU7tf3DBhgNvgeCkNTQXbAvUpump'; // TODO: ganti dengan token address asli
+                    const fullAddress = '86BMwo29TgobuYTCFU7tf3DBhgNvgeCkNTQXbAvUpump'; 
                     navigator.clipboard.writeText(fullAddress);
 
                     // trigger tooltip
@@ -103,7 +103,7 @@ function App() {
                     setTimeout(() => setCopied(false), 1500);
                   }}
                 >
-                  {/* ikon copy */}
+                  {/* copy icon */}
                   <svg
                     width="16"
                     height="16"
@@ -122,7 +122,7 @@ function App() {
                   {/* short display only */}
                   <code className="token-address">86BMwo..pump</code>
 
-                  {/* tooltip muncul hanya ketika copied = true */}
+                  {/* tooltip when copied = true */}
                   {copied && (
                     <span className="copy-tooltip">Copied!</span>
                   )}

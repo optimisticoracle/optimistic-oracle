@@ -1,0 +1,39 @@
+{
+  "name": "@optimistic-oracle/sdk-x402",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for Optimistic Oracle with X402 payment integration",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "keywords": [
+    "optimistic-oracle",
+    "x402",
+    "solana",
+    "sdk",
+    "payments",
+    "oracle"
+  ],
+  "author": "Optimistic Oracle Team",
+  "license": "MIT",
+  "dependencies": {
+    "@solana/web3.js": "^1.95.4",
+    "axios": "^1.7.9",
+    "bs58": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2",
+    "tsx": "^4.19.2",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.14",
+    "ts-jest": "^29.2.5",
+    "eslint": "^9.15.0",
+    "prettier": "^3.4.2"
+  }
+}

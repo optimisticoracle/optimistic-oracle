@@ -22,6 +22,9 @@ An optimistic oracle protocol built on Solana that enables decentralized data fe
 - 🌐 **Multi-Purpose** - Supports DeFi pricing, prediction markets, event verification, IoT data
 - 🔄 **Dispute Resolution** - Transparent challenge mechanism with economic penalties
 - 📈 **Scalable** - Built for Web3 scale with high throughput
+- 💳 **X402 Payment Protocol** - HTTP 402 Payment Required for seamless micropayments
+- 🔗 **PayAI Integration** - Automated payment verification and settlement
+- 💱 **Auto Conversion** - USDC to SOL conversion for all payments
 
 ---
 
@@ -47,7 +50,6 @@ An optimistic oracle protocol built on Solana that enables decentralized data fe
 ---
 
 ## 📦 Project Structure
-
 ```
 optimistic_oracle/
 ├── programs/
@@ -58,24 +60,30 @@ optimistic_oracle/
 │       │   └── error.rs       # Custom errors
 │       └── Cargo.toml
 ├── packages/
-│   ├── landing/               # Landing page
+│   ├── api-x402/              # X402-enabled REST API 
 │   │   ├── src/
-│   │   │   ├── App.tsx
-│   │   │   └── App.css
-│   │   └── package.json
-│   ├── dashboard/             # Dashboard UI
-│   │   ├── src/
-│   │   │   ├── App.tsx
-│   │   │   └── App.css
-│   │   └── package.json
-│   ├── api/                   # REST API
-│   │   ├── src/
+│   │   │   ├── routes/        # API endpoints
+│   │   │   ├── services/      # Business logic
+│   │   │   ├── middleware/    # X402 payment middleware
 │   │   │   └── index.ts
 │   │   └── package.json
-│   └── sdk/                   # TypeScript SDK
+│   ├── sdk-x402/              # TypeScript SDK 
+│   │   ├── src/
+│   │   │   ├── client/        # API client
+│   │   │   ├── payments/      # X402 payment handler
+│   │   │   ├── types/         # Type definitions
+│   │   │   └── utils/         # Utilities
+│   │   └── package.json
+│   ├── dashboard-x402/        # React Dashboard 
+│   │   ├── src/
+│   │   │   ├── components/    # UI components
+│   │   │   ├── App.tsx        # Main app
+│   │   │   └── WalletProvider.tsx
+│   │   └── package.json
+│   └── landing/               # Landing page
 │       ├── src/
-│       │   ├── index.ts
-│       │   └── config.ts
+│       │   ├── App.tsx
+│       │   └── App.css
 │       └── package.json
 ├── docs/                      # Documentation
 ├── scripts/                   # Deployment scripts
@@ -114,10 +122,9 @@ anchor deploy --provider.cluster devnet
 
 ### Running Locally
 
-#### 1. Start the API Server
-
+#### 1. Start the X402 API Server
 ```bash
-cd packages/api
+cd packages/api-x402
 npm install
 npm run dev
 ```
@@ -125,17 +132,15 @@ npm run dev
 API will run on `http://localhost:3000`
 
 #### 2. Start the Dashboard
-
 ```bash
-cd packages/dashboard
+cd packages/dashboard-x402
 npm install
 npm run dev
 ```
 
-Dashboard will run on `http://localhost:5173`
+Dashboard will run on `http://localhost:5175`
 
 #### 3. Start the Landing Page
-
 ```bash
 cd packages/landing
 npm install
@@ -143,6 +148,58 @@ npm run dev
 ```
 
 Landing page will run on `http://localhost:5174`
+
+---
+
+## 💳 X402 Payment Integration
+
+The Optimistic Oracle now supports **HTTP 402 Payment Required** protocol for seamless micropayments!
+
+### Architecture
+```
+┌─────────────┐         ┌──────────────┐         ┌─────────────┐
+│   Client    │────────▶│  API Server  │────────▶│   Solana    │
+│  (X-PAYMENT)│         │  (Express)   │         │  (Devnet)   │
+└─────────────┘         └──────────────┘         └─────────────┘
+                               │
+                               ▼
+                        ┌──────────────┐
+                        │    PayAI     │
+                        │ Facilitator  │
+                        └──────────────┘
+```
+
+### Packages
+
+**📦 api-x402** - REST API Server with X402 support
+- HTTP 402 Payment Required flows
+- PayAI facilitator integration  
+- USDC to SOL conversion
+- Bond-based security
+- [View Documentation](./packages/api-x402/README.md)
+
+**📦 sdk-x402** - TypeScript SDK
+- Type-safe API client
+- X402 payment handler
+- Automatic payment flows
+- Wallet adapter integration
+- [View Documentation](./packages/sdk-x402/README.md)
+
+**📦 dashboard-x402** - React Dashboard
+- Solana wallet connection (Phantom, Solflare)
+- Create/Propose/Dispute UI
+- Real-time request tracking
+- Responsive modern design
+- [View Documentation](./packages/dashboard-x402/README.md)
+
+### Payment Flow
+
+1. **Client makes request** → API returns 402 Payment Required
+2. **SDK creates payment** → User signs Solana transaction
+3. **PayAI verifies** → Payment confirmed on-chain
+4. **API processes** → Returns successful result
+
+All payments are economically secured with bonds and escrows!
 
 ---
 

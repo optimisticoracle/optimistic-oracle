@@ -1,69 +1,58 @@
 import axios from 'axios';
 import { x402, payments } from '../config';
-import { 
-  X402PaymentRequirement, 
-  X402VerificationResult,
-  X402Scheme,
-  PaymentAmount
-} from '../types';
 import logger from '../utils/logger';
-import { generateId } from '../utils/helpers';
+
+/**
+ * PayAI Facilitator Integration
+ * Implements x402 payment protocol for Solana
+ */
+
+// Types for X402 Protocol (PayAI spec)
+interface PaymentRequirement {
+  scheme: string;
+  network: string;
+  maxAmountRequired: string;
+  resource: string;
+  description: string;
+  mimeType: string;
+  payTo: string;
+  maxTimeoutSeconds: number;
+  asset: string;
+}
+
+interface X402Response {
+  x402Version: number;
+  accepts: PaymentRequirement[];
+}
+
+interface VerificationResult {
+  valid: boolean;
+  error?: string;
+  txHash?: string;
+}
 
 /**
  * Create payment requirements for request creation
  */
 export async function createRequestPaymentRequirements(
   resource: string,
-  antispamBond?: PaymentAmount,
-  priorityTip?: PaymentAmount
-): Promise<X402PaymentRequirement> {
-  const schemes: X402Scheme[] = [];
-  
-  // Antispam bond requirement
-  if (antispamBond) {
-    schemes.push({
-      scheme: 'exact',
-      network: 'solana-devnet',
-      asset: {
-        address: x402.usdcMint,
-        decimals: 6,
-      },
-      recipient: x402.treasuryAddress,
-      amount: antispamBond.amount,
-    });
-  } else {
-    // Default antispam bond
-    schemes.push({
-      scheme: 'exact',
-      network: 'solana-devnet',
-      asset: {
-        address: x402.usdcMint,
-        decimals: 6,
-      },
-      recipient: x402.treasuryAddress,
-      amount: payments.antispamBondAmount,
-    });
-  }
-  
-  // Priority tip (optional)
-  if (priorityTip) {
-    schemes.push({
-      scheme: 'exact',
-      network: 'solana-devnet',
-      asset: {
-        address: x402.usdcMint,
-        decimals: 6,
-      },
-      recipient: x402.treasuryAddress,
-      amount: priorityTip.amount,
-    });
-  }
-  
+  customAmount?: { amount: string; asset: string }
+): Promise<X402Response> {
+  const amount = customAmount?.amount || payments.antispamBondAmount;
+
   return {
-    version: '1.0',
-    schemes,
-    description: 'Payment required to create oracle request',
-    resource,
+    x402Version: 1,
+    accepts: [{
+      scheme: 'solana-transfer',
+      network: 'solana-devnet',
+      maxAmountRequired: amount,
+      resource,
+      description: 'Payment required to create oracle request',
+      mimeType: 'application/json',
+      payTo: x402.treasuryAddress,
+      maxTimeoutSeconds: 60,
+      asset: x402.usdcMint,
+    }],
   };
 }
 
@@ -72,44 +61,21 @@ export async function createRequestPaymentRequirements(
  */
 export async function createProposalPaymentRequirements(
   resource: string,
-  requestId: number,
-  bond?: PaymentAmount,
-  reputationStake?: PaymentAmount
-): Promise<X402PaymentRequirement> {
-  const schemes: X402Scheme[] = [];
-  
-  // Proposer bond requirement
-  const bondAmount = bond?.amount || payments.proposerBondAmount;
-  schemes.push({
-    scheme: 'exact',
-    network: 'solana-devnet',
-    asset: {
-      address: x402.usdcMint,
-      decimals: 6,
-    },
-    recipient: x402.treasuryAddress,
-    amount: bondAmount,
-  });
-  
-  // Reputation stake (optional)
-  if (reputationStake) {
-    schemes.push({
-      scheme: 'exact',
-      network: 'solana-devnet',
-      asset: {
-        address: x402.usdcMint,
-        decimals: 6,
-      },
-      recipient: x402.treasuryAddress,
-      amount: reputationStake.amount,
-    });
-  }
-  
+  requestId: number | string
+): Promise<X402Response> {
   return {
-    version: '1.0',
-    schemes,
-    description: `Payment required to propose answer for request #${requestId}`,
-    resource,
+    x402Version: 1,
+    accepts: [{
+      scheme: 'solana-transfer',
+      network: 'solana-devnet',
+      maxAmountRequired: payments.proposerBondAmount,
+      resource,
+      description: `Payment required to propose answer for request #${requestId}`,
+      mimeType: 'application/json',
+      payTo: x402.treasuryAddress,
+      maxTimeoutSeconds: 60,
+      asset: x402.usdcMint,
+    }],
   };
 }
 
@@ -118,44 +84,21 @@ export async function createProposalPaymentRequirements(
  */
 export async function createDisputePaymentRequirements(
   resource: string,
-  requestId: number,
-  bond?: PaymentAmount,
-  resolutionBounty?: PaymentAmount
-): Promise<X402PaymentRequirement> {
-  const schemes: X402Scheme[] = [];
-  
-  // Disputer bond requirement (symmetric with proposer)
-  const bondAmount = bond?.amount || payments.disputerBondAmount;
-  schemes.push({
-    scheme: 'exact',
-    network: 'solana-devnet',
-    asset: {
-      address: x402.usdcMint,
-      decimals: 6,
-    },
-    recipient: x402.treasuryAddress,
-    amount: bondAmount,
-  });
-  
-  // Resolution bounty (optional)
-  if (resolutionBounty) {
-    schemes.push({
-      scheme: 'exact',
-      network: 'solana-devnet',
-      asset: {
-        address: x402.usdcMint,
-        decimals: 6,
-      },
-      recipient: x402.treasuryAddress,
-      amount: resolutionBounty.amount,
-    });
-  }
-  
+  requestId: number | string
+): Promise<X402Response> {
   return {
-    version: '1.0',
-    schemes,
-    description: `Payment required to dispute answer for request #${requestId}`,
-    resource,
+    x402Version: 1,
+    accepts: [{
+      scheme: 'solana-transfer',
+      network: 'solana-devnet',
+      maxAmountRequired: payments.disputerBondAmount,
+      resource,
+      description: `Payment required to dispute answer for request #${requestId}`,
+      mimeType: 'application/json',
+      payTo: x402.treasuryAddress,
+      maxTimeoutSeconds: 60,
+      asset: x402.usdcMint,
+    }],
   };
 }
 
@@ -164,43 +107,43 @@ export async function createDisputePaymentRequirements(
  */
 export async function verifyPayment(
   paymentHeader: string,
-  paymentRequirements: X402PaymentRequirement
-): Promise<X402VerificationResult> {
+  paymentRequirements: X402Response
+): Promise<VerificationResult> {
   try {
     logger.info('Verifying X402 payment via PayAI facilitator');
-    
-    // Call PayAI facilitator verify endpoint
+
+    // PayAI expects first accept requirement
+    const requirement = paymentRequirements.accepts[0];
+
+    // Call PayAI facilitator /verify endpoint
     const response = await axios.post(
       `${x402.facilitatorUrl}/verify`,
       {
-        payment: paymentHeader,
-        requirements: paymentRequirements,
+        x402Version: 1,
+        paymentHeader,
+        paymentRequirements: requirement,
       },
       {
         headers: {
           'Content-Type': 'application/json',
         },
-        timeout: 10000, // 10 second timeout
+        timeout: 10000,
       }
     );
-    
-    if (response.data.valid) {
-      logger.info('Payment verified successfully', {
-        txHash: response.data.txHash,
-      });
-      
+
+    const { isValid, invalidReason } = response.data;
+
+    if (isValid) {
+      logger.info('Payment verified successfully');
       return {
         valid: true,
         txHash: response.data.txHash,
       };
     } else {
-      logger.warn('Payment verification failed', {
-        error: response.data.error,
-      });
-      
+      logger.warn('Payment verification failed', { reason: invalidReason });
       return {
         valid: false,
-        error: response.data.error || 'Payment verification failed',
+        error: invalidReason || 'Payment verification failed',
       };
     }
   } catch (error: any) {
@@ -208,10 +151,10 @@ export async function verifyPayment(
       error: error.message,
       facilitatorUrl: x402.facilitatorUrl,
     });
-    
+
     return {
       valid: false,
-      error: error.message || 'Failed to verify payment',
+      error: error.response?.data?.invalidReason || error.message || 'Failed to verify payment',
     };
   }
 }
@@ -220,61 +163,21 @@ export async function verifyPayment(
  * Settle payment on-chain via PayAI facilitator
  */
 export async function settlePayment(
-  paymentId: string,
-  txHash: string
-): Promise<boolean> {
+  paymentHeader: string,
+  paymentRequirements: X402Response
+): Promise<{ success: boolean; txHash?: string; error?: string }> {
   try {
-    logger.info('Settling payment on-chain', { paymentId, txHash });
-    
+    logger.info('Settling payment on-chain via PayAI');
+
+    const requirement = paymentRequirements.accepts[0];
+
+    // Call PayAI facilitator /settle endpoint
     const response = await axios.post(
       `${x402.facilitatorUrl}/settle`,
       {
-        paymentId,
-        txHash,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 30000, // 30 second timeout
-      }
-    );
-    
-    if (response.data.settled) {
-      logger.info('Payment settled successfully', {
-        paymentId,
-        settlementTx: response.data.settlementTx,
-      });
-      return true;
-    }
-    
-    return false;
-  } catch (error: any) {
-    logger.error('Error settling payment', {
-      error: error.message,
-      paymentId,
-    });
-    return false;
-  }
-}
-
-/**
- * Refund payment via PayAI facilitator
- */
-export async function refundPayment(
-  paymentId: string,
-  recipient: string,
-  amount: string
-): Promise<boolean> {
-  try {
-    logger.info('Refunding payment', { paymentId, recipient, amount });
-    
-    const response = await axios.post(
-      `${x402.facilitatorUrl}/refund`,
-      {
-        paymentId,
-        recipient,
-        amount,
+        x402Version: 1,
+        paymentHeader,
+        paymentRequirements: requirement,
       },
       {
         headers: {
@@ -283,22 +186,22 @@ export async function refundPayment(
         timeout: 30000,
       }
     );
-    
-    if (response.data.refunded) {
-      logger.info('Payment refunded successfully', {
-        paymentId,
-        refundTx: response.data.refundTx,
-      });
-      return true;
+
+    const { success, txHash, error } = response.data;
+
+    if (success) {
+      logger.info('Payment settled successfully', { txHash });
+      return { success: true, txHash };
+    } else {
+      logger.warn('Payment settlement failed', { error });
+      return { success: false, error };
     }
-    
-    return false;
   } catch (error: any) {
-    logger.error('Error refunding payment', {
-      error: error.message,
-      paymentId,
-    });
-    return false;
+    logger.error('Error settling payment', { error: error.message });
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message || 'Failed to settle payment',
+    };
   }
 }
 
@@ -310,8 +213,8 @@ export async function getSupportedNetworks(): Promise<string[]> {
     const response = await axios.get(`${x402.facilitatorUrl}/supported`, {
       timeout: 5000,
     });
-    
-    return response.data.networks || ['solana-devnet'];
+
+    return response.data.kinds?.map((k: any) => k.network) || ['solana-devnet'];
   } catch (error) {
     logger.warn('Failed to fetch supported networks, using default');
     return ['solana-devnet'];
@@ -326,8 +229,8 @@ export async function checkFacilitatorHealth(): Promise<boolean> {
     const response = await axios.get(`${x402.facilitatorUrl}/health`, {
       timeout: 5000,
     });
-    
-    return response.status === 200 && response.data.status === 'healthy';
+
+    return response.status === 200;
   } catch (error) {
     logger.error('Facilitator health check failed');
     return false;

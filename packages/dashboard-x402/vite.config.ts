@@ -13,6 +13,7 @@ export default defineConfig({
     alias: {
       stream: 'stream-browserify',
       crypto: 'crypto-browserify',
+      buffer: 'buffer',
     },
   },
   optimizeDeps: {

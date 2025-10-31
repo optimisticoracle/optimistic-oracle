@@ -85,7 +85,8 @@ export function RequestCard({ request, onPropose, onDispute }: RequestCardProps)
         <button
           onClick={() => onPropose(request.requestId)}
           style={{
-            backgroundColor: '#3b82f6',
+            background: 'linear-gradient(135deg, #14B8A6 0%, #0EA5E9 100%)',
+            boxShadow: '0 10px 30px rgba(20, 184, 166, 0.3)',
             color: 'white',
             padding: '10px 20px',
             borderRadius: '8px',
@@ -104,7 +105,7 @@ export function RequestCard({ request, onPropose, onDispute }: RequestCardProps)
         <button
           onClick={() => onDispute(request.requestId)}
           style={{
-            backgroundColor: '#ef4444',
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
             color: 'white',
             padding: '10px 20px',
             borderRadius: '8px',

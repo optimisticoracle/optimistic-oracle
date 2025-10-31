@@ -460,7 +460,7 @@
   margin-bottom: 40px;
 }
 
-/* tombol dari hero (Try Demo, GitHub) */
+/* button hero (Try Demo, GitHub) */
 .btn-primary,
 .btn-secondary {
   display: inline-flex;
@@ -513,7 +513,7 @@
    TRUST SECTION + TOKEN BOX
    =========================== */
 
-/* override hero-trust: dari 1 baris jadi stack + center */
+/* override hero-trust */
 .hero-trust {
   color: #64748B;
   font-size: 14px;
@@ -532,7 +532,7 @@
   line-height: 1.4;
 }
 
-/* card berisi token address */
+/* card for token address */
 .token-box {
   background: rgba(15, 23, 42, 0.8);
   border: 1px solid rgba(148, 163, 184, 0.25);
@@ -563,7 +563,6 @@
   line-height: 1.2;
 }
 
-/* badge yang bisa di-copy */
 .token-placeholder {
   position: relative;
   display: inline-flex;
@@ -595,7 +594,7 @@
   letter-spacing: 0.5px;
 }
 
-/* tooltip ketika copied === true */
+/* tooltip when copied === true */
 .copy-tooltip {
   position: absolute;
   top: -34px;
@@ -1103,7 +1102,7 @@
     flex-direction: column;
   }
 
-  /* responsive tweak untuk token card */
+  /* responsive tweak for card token */
   .token-box {
     width: 100%;
     max-width: 260px;

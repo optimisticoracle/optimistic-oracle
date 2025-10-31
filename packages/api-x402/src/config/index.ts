@@ -28,7 +28,12 @@ export const config: ServerConfig = {
   baseUrl: process.env.BASE_URL || 'http://localhost:3000',
   corsOrigin: process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',')
-    : ['http://localhost:5173', 'http://localhost:5174'],
+    : [
+        'http://localhost:5173', 
+        'http://localhost:5174',
+        'http://localhost:5175',
+        'http://127.0.0.1:5175'
+      ],
   
   solana: {
     rpcUrl: process.env.SOLANA_RPC_URL!,

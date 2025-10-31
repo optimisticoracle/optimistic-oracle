@@ -50,25 +50,38 @@ export default function App() {
       const expiryTimestamp = Math.floor(Date.now() / 1000) + parseInt(createForm.expiryMinutes) * 60;
       const challengePeriod = parseInt(createForm.challengePeriodHours) * 3600;
 
+      const requestBody = {
+        question: createForm.question,
+        answerType: createForm.answerType,
+        rewardAmount: Math.floor(parseFloat(createForm.rewardAmount) * 1e6),
+        bondAmount: Math.floor(parseFloat(createForm.bondAmount) * 1e6),
+        expiryTimestamp,
+        challengePeriod,
+        creator: publicKey.toString(),
+        dataSource: createForm.dataSource || undefined,
+      };
+
+      // First attempt - without payment
       const response = await fetch(`${API_URL}/api/requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: createForm.question,
-          answerType: createForm.answerType,
-          rewardAmount: Math.floor(parseFloat(createForm.rewardAmount) * 1e6),
-          bondAmount: Math.floor(parseFloat(createForm.bondAmount) * 1e6),
-          expiryTimestamp,
-          challengePeriod,
-          creator: publicKey.toString(),
-          dataSource: createForm.dataSource || undefined,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await response.json();
       
+      // Handle 402 Payment Required
       if (response.status === 402) {
-        alert('Payment required! Please implement X402 payment flow.');
+        console.log('402 Payment Required Response:', data);
+        
+        const paymentReq = data.paymentRequirements?.accepts?.[0];
+        if (paymentReq) {
+          const amountUSDC = (parseInt(paymentReq.maxAmountRequired) / 1e6).toFixed(2);
+          alert(`Payment required: ${amountUSDC} USDC bond\n\nPayment integration coming soon!`);
+        } else {
+          alert('Payment required! Please implement X402 payment flow.');
+        }
+        
         return;
       }
 
@@ -77,7 +90,7 @@ export default function App() {
         setShowCreateForm(false);
         fetchRequests();
       } else {
-        alert('Error: ' + data.error?.message);
+        alert('Error: ' + (data.error?.message || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error creating request:', error);

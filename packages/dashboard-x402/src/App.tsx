@@ -4,7 +4,7 @@ import { WalletButton } from './components/WalletButton';
 import { RequestCard } from './components/RequestCard';
 import { Request, CreateRequestForm } from './types';
 
-const API_URL = 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export default function App() {
   const { publicKey, connected } = useWallet();
@@ -29,9 +29,11 @@ export default function App() {
     try {
       const response = await fetch(`${API_URL}/api/requests`);
       const data = await response.json();
-      setRequests(data.data || []);
+      // Safety check: ensure data.data is array
+      setRequests(Array.isArray(data.data) ? data.data : []);
     } catch (error) {
       console.error('Error fetching requests:', error);
+      setRequests([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -84,12 +86,16 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+    <div style={{ minHeight: '100vh', background: '#0F172A' }}>
       {/* Header */}
       <header style={{
-        backgroundColor: 'white',
-        borderBottom: '1px solid #e5e7eb',
+        background: 'rgba(15, 23, 42, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(20, 184, 166, 0.1)',
         padding: '16px 24px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
       }}>
         <div style={{
           maxWidth: '1200px',
@@ -98,35 +104,49 @@ export default function App() {
           justifyContent: 'space-between',
           alignItems: 'center',
         }}>
-          <div>
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>
-              ⚡ Optimistic Oracle
-            </h1>
-            <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
-              Truth by Default, Verified by Economics
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img src="/logo.png" alt="Logo" style={{ height: '40px', width: 'auto' }} />
+            <div>
+              <h1 style={{
+                fontSize: '20px',
+                fontWeight: '700',
+                letterSpacing: '2px',
+                background: 'linear-gradient(135deg, #14B8A6 0%, #0EA5E9 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                margin: 0,
+              }}>
+                OPTIMISTIC ORACLE
+              </h1>
+              <p style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px', margin: 0 }}>
+                Truth by Default, Verified by Economics
+              </p>
+            </div>
           </div>
           <WalletButton />
         </div>
       </header>
 
       {/* Main Content */}
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 24px' }}>
         {/* Action Bar */}
         <div style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          padding: '20px',
-          marginBottom: '24px',
+          background: 'rgba(30, 41, 59, 0.6)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '16px',
+          padding: '30px',
+          marginBottom: '30px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          border: '1px solid rgba(20, 184, 166, 0.2)',
         }}>
           <div>
-            <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#F1F5F9', margin: 0 }}>
               Oracle Requests
             </h2>
-            <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
+            <p style={{ fontSize: '14px', color: '#94A3B8', marginTop: '8px', margin: 0 }}>
               {requests.length} active requests
             </p>
           </div>
@@ -134,14 +154,28 @@ export default function App() {
             onClick={() => setShowCreateForm(!showCreateForm)}
             disabled={!connected}
             style={{
-              backgroundColor: connected ? '#9945FF' : '#9ca3af',
+              background: connected ? 'linear-gradient(135deg, #14B8A6 0%, #0EA5E9 100%)' : '#334155',
               color: 'white',
-              padding: '10px 20px',
-              borderRadius: '8px',
+              padding: '12px 28px',
+              borderRadius: '12px',
               border: 'none',
-              fontSize: '14px',
+              fontSize: '16px',
               fontWeight: '600',
               cursor: connected ? 'pointer' : 'not-allowed',
+              boxShadow: connected ? '0 10px 30px rgba(20, 184, 166, 0.3)' : 'none',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (connected) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 15px 40px rgba(20, 184, 166, 0.4)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (connected) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 10px 30px rgba(20, 184, 166, 0.3)';
+              }
             }}
           >
             {showCreateForm ? 'Cancel' : '+ Create Request'}
@@ -151,17 +185,19 @@ export default function App() {
         {/* Create Form */}
         {showCreateForm && (
           <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '24px',
-            marginBottom: '24px',
+            background: 'rgba(30, 41, 59, 0.6)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '16px',
+            padding: '30px',
+            marginBottom: '30px',
+            border: '1px solid rgba(20, 184, 166, 0.2)',
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px', color: '#F1F5F9' }}>
               Create Oracle Request
             </h3>
             <form onSubmit={handleCreateRequest}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#F1F5F9' }}>
                   Question *
                 </label>
                 <input
@@ -172,17 +208,19 @@ export default function App() {
                   placeholder="Will BTC reach $100k by end of 2025?"
                   style={{
                     width: '100%',
-                    padding: '10px',
+                    padding: '12px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #d1d5db',
+                    border: '1px solid rgba(148, 163, 184, 0.3)',
                     fontSize: '14px',
+                    background: 'rgba(30, 41, 59, 0.6)',
+                    color: '#F1F5F9',
                   }}
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#F1F5F9' }}>
                     Answer Type
                   </label>
                   <select
@@ -190,10 +228,12 @@ export default function App() {
                     onChange={(e) => setCreateForm({ ...createForm, answerType: e.target.value as any })}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px 16px',
                       borderRadius: '8px',
-                      border: '1px solid #d1d5db',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
                       fontSize: '14px',
+                      background: 'rgba(30, 41, 59, 0.6)',
+                      color: '#F1F5F9',
                     }}
                   >
                     <option value="YesNo">Yes/No</option>
@@ -203,7 +243,7 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#F1F5F9' }}>
                     Data Source
                   </label>
                   <input
@@ -213,18 +253,20 @@ export default function App() {
                     placeholder="https://example.com"
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px 16px',
                       borderRadius: '8px',
-                      border: '1px solid #d1d5db',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
                       fontSize: '14px',
+                      background: 'rgba(30, 41, 59, 0.6)',
+                      color: '#F1F5F9',
                     }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#F1F5F9' }}>
                     Reward (USDC)
                   </label>
                   <input
@@ -236,16 +278,18 @@ export default function App() {
                     onChange={(e) => setCreateForm({ ...createForm, rewardAmount: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px 16px',
                       borderRadius: '8px',
-                      border: '1px solid #d1d5db',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
                       fontSize: '14px',
+                      background: 'rgba(30, 41, 59, 0.6)',
+                      color: '#F1F5F9',
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#F1F5F9' }}>
                     Bond (USDC)
                   </label>
                   <input
@@ -257,16 +301,18 @@ export default function App() {
                     onChange={(e) => setCreateForm({ ...createForm, bondAmount: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px 16px',
                       borderRadius: '8px',
-                      border: '1px solid #d1d5db',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
                       fontSize: '14px',
+                      background: 'rgba(30, 41, 59, 0.6)',
+                      color: '#F1F5F9',
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#F1F5F9' }}>
                     Expiry (minutes)
                   </label>
                   <input
@@ -277,16 +323,18 @@ export default function App() {
                     onChange={(e) => setCreateForm({ ...createForm, expiryMinutes: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px 16px',
                       borderRadius: '8px',
-                      border: '1px solid #d1d5db',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
                       fontSize: '14px',
+                      background: 'rgba(30, 41, 59, 0.6)',
+                      color: '#F1F5F9',
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#F1F5F9' }}>
                     Challenge (hours)
                   </label>
                   <input
@@ -297,10 +345,12 @@ export default function App() {
                     onChange={(e) => setCreateForm({ ...createForm, challengePeriodHours: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px 16px',
                       borderRadius: '8px',
-                      border: '1px solid #d1d5db',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
                       fontSize: '14px',
+                      background: 'rgba(30, 41, 59, 0.6)',
+                      color: '#F1F5F9',
                     }}
                   />
                 </div>
@@ -309,15 +359,25 @@ export default function App() {
               <button
                 type="submit"
                 style={{
-                  backgroundColor: '#9945FF',
+                  background: 'linear-gradient(135deg, #14B8A6 0%, #0EA5E9 100%)',
                   color: 'white',
-                  padding: '12px',
-                  borderRadius: '8px',
+                  padding: '14px',
+                  borderRadius: '12px',
                   border: 'none',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   fontWeight: '600',
                   cursor: 'pointer',
                   width: '100%',
+                  boxShadow: '0 10px 30px rgba(20, 184, 166, 0.3)',
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 15px 40px rgba(20, 184, 166, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 10px 30px rgba(20, 184, 166, 0.3)';
                 }}
               >
                 Create Request (Payment Required)
@@ -328,17 +388,19 @@ export default function App() {
 
         {/* Requests List */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+          <div style={{ textAlign: 'center', padding: '60px', color: '#94A3B8' }}>
             Loading requests...
           </div>
         ) : requests.length === 0 ? (
           <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '40px',
+            background: 'rgba(30, 41, 59, 0.6)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '16px',
+            padding: '60px',
             textAlign: 'center',
+            border: '1px solid rgba(20, 184, 166, 0.2)',
           }}>
-            <p style={{ fontSize: '16px', color: '#6b7280' }}>
+            <p style={{ fontSize: '18px', color: '#94A3B8' }}>
               No requests yet. Create the first one!
             </p>
           </div>

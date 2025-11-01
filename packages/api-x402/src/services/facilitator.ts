@@ -18,6 +18,9 @@ interface PaymentRequirement {
   payTo: string;
   maxTimeoutSeconds: number;
   asset: string;
+  extra?: {
+    feePayer: string;
+  };
 }
 
 interface X402Response {
@@ -43,7 +46,7 @@ export async function createRequestPaymentRequirements(
   return {
     x402Version: 1,
     accepts: [{
-      scheme: 'solana-transfer',
+      scheme: 'exact',
       network: 'solana-devnet',
       maxAmountRequired: amount,
       resource,
@@ -52,6 +55,9 @@ export async function createRequestPaymentRequirements(
       payTo: x402.treasuryAddress,
       maxTimeoutSeconds: 60,
       asset: x402.usdcMint,
+      extra: {
+        feePayer: x402.treasuryAddress,
+      },
     }],
   };
 }
@@ -66,7 +72,7 @@ export async function createProposalPaymentRequirements(
   return {
     x402Version: 1,
     accepts: [{
-      scheme: 'solana-transfer',
+      scheme: 'exact',
       network: 'solana-devnet',
       maxAmountRequired: payments.proposerBondAmount,
       resource,
@@ -75,6 +81,9 @@ export async function createProposalPaymentRequirements(
       payTo: x402.treasuryAddress,
       maxTimeoutSeconds: 60,
       asset: x402.usdcMint,
+      extra: {
+        feePayer: x402.treasuryAddress,
+      },
     }],
   };
 }
@@ -89,7 +98,7 @@ export async function createDisputePaymentRequirements(
   return {
     x402Version: 1,
     accepts: [{
-      scheme: 'solana-transfer',
+      scheme: 'exact',
       network: 'solana-devnet',
       maxAmountRequired: payments.disputerBondAmount,
       resource,
@@ -98,6 +107,9 @@ export async function createDisputePaymentRequirements(
       payTo: x402.treasuryAddress,
       maxTimeoutSeconds: 60,
       asset: x402.usdcMint,
+      extra: {
+        feePayer: x402.treasuryAddress,
+      },
     }],
   };
 }
@@ -115,19 +127,21 @@ export async function verifyPayment(
     // PayAI expects first accept requirement
     const requirement = paymentRequirements.accepts[0];
 
+    // Decode X-PAYMENT header to get paymentPayload (PayAI expects decoded JSON)
+    const paymentPayload = JSON.parse(Buffer.from(paymentHeader, 'base64').toString('utf-8'));
+
     // Call PayAI facilitator /verify endpoint
     const response = await axios.post(
       `${x402.facilitatorUrl}/verify`,
       {
-        x402Version: 1,
-        paymentHeader,
+        paymentPayload,
         paymentRequirements: requirement,
       },
       {
         headers: {
           'Content-Type': 'application/json',
         },
-        timeout: 10000,
+        timeout: 30000,
       }
     );
 
@@ -171,12 +185,14 @@ export async function settlePayment(
 
     const requirement = paymentRequirements.accepts[0];
 
+    // Decode X-PAYMENT header
+    const paymentPayload = JSON.parse(Buffer.from(paymentHeader, 'base64').toString('utf-8'));
+
     // Call PayAI facilitator /settle endpoint
     const response = await axios.post(
       `${x402.facilitatorUrl}/settle`,
       {
-        x402Version: 1,
-        paymentHeader,
+        paymentPayload,
         paymentRequirements: requirement,
       },
       {

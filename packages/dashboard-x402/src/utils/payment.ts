@@ -79,13 +79,10 @@ export async function handlePaymentRequired(
     // Construct X-PAYMENT header (PayAI format)
     const paymentPayload = {
       x402Version: 1,
-      scheme: paymentReq.scheme,
+      scheme: 'exact',
       network: paymentReq.network,
       payload: {
         transaction: serialized,
-        from: fromPubkey.toString(),
-        to: toPubkey.toString(),
-        amount: amount.toString(),
       },
     };
 

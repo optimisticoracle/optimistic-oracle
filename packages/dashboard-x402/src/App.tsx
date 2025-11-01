@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { Connection } from '@solana/web3.js';
 import { WalletButton } from './components/WalletButton';
 import { RequestCard } from './components/RequestCard';
 import { Request, CreateRequestForm } from './types';
+import { handlePaymentRequired } from './utils/payment';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const SOLANA_RPC = 'https://api.devnet.solana.com';
 
 export default function App() {
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, signTransaction } = useWallet();
+  const connection = new Connection(SOLANA_RPC, 'confirmed');
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -75,11 +79,69 @@ export default function App() {
         console.log('402 Payment Required Response:', data);
         
         const paymentReq = data.paymentRequirements?.accepts?.[0];
-        if (paymentReq) {
-          const amountUSDC = (parseInt(paymentReq.maxAmountRequired) / 1e6).toFixed(2);
-          alert(`Payment required: ${amountUSDC} USDC bond\n\nPayment integration coming soon!`);
-        } else {
-          alert('Payment required! Please implement X402 payment flow.');
+        if (!paymentReq) {
+          alert('Invalid payment requirements from server');
+          return;
+        }
+        
+        const amountUSDC = (parseInt(paymentReq.maxAmountRequired) / 1e6).toFixed(2);
+        
+        const confirmPayment = confirm(
+          `Payment Required:\n\n` +
+          `Amount: ${amountUSDC} USDC\n` +
+          `Purpose: Oracle request bond\n\n` +
+          `Click OK to sign transaction with your wallet.`
+        );
+        
+        if (!confirmPayment) {
+          alert('Payment cancelled');
+          return;
+        }
+        
+        // Construct payment with wallet
+        try {
+          if (!signTransaction) {
+            alert('Wallet does not support transaction signing');
+            return;
+          }
+
+          const paymentHeader = await handlePaymentRequired(
+            data,
+            { publicKey, signTransaction },
+            connection
+          );
+
+          if (!paymentHeader) {
+            alert('Failed to construct payment. Check console for details.');
+            return;
+          }
+
+          console.log('Payment header created, retrying request...');
+          console.log('X-PAYMENT header:', paymentHeader);
+          console.log('Request body:', requestBody);
+
+          // Retry request with X-PAYMENT header
+          const retryResponse = await fetch(`${API_URL}/api/requests`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-PAYMENT': paymentHeader,
+            },
+            body: JSON.stringify(requestBody),
+          });
+
+          const retryData = await retryResponse.json();
+
+          if (retryData.success) {
+            alert('Request created successfully with payment!');
+            setShowCreateForm(false);
+            fetchRequests();
+          } else {
+            alert('Error after payment: ' + (retryData.error?.message || 'Unknown error'));
+          }
+        } catch (paymentError) {
+          console.error('Payment error:', paymentError);
+          alert('Payment failed: ' + (paymentError as Error).message);
         }
         
         return;

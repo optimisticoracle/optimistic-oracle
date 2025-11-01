@@ -23,6 +23,13 @@ const paymentRecords = new Map<string, PaymentRecord>();
  */
 export function extractPaymentHeader(req: Request): string | null {
   const header = req.headers['x-payment'] as string;
+  
+  logger.info('Extracting payment header:', {
+    hasHeader: !!header,
+    headerLength: header?.length || 0,
+    allHeaderKeys: Object.keys(req.headers),
+  });
+  
   return header || null;
 }
 
